@@ -1,0 +1,133 @@
+from thefuzz import process
+from scipy import optimize
+from scipy.sparse import csr_matrix
+import numpy as np
+import os
+import collections
+import shutil
+from unidecode import unidecode
+from tabulate import tabulate
+import pandas as pd
+from unicodedata import normalize
+import re
+
+
+# normalize a string removing/modifying special characters from strings (diacritics, spaces, capitals, etc.)
+
+def flatten_name(string):
+    return unidecode(string).strip().replace(" ", "").replace(",", "").casefold()
+
+
+# get the list of PDF file names (without extension) in path
+
+def PDF_names(path):
+    return [normalize('NFC', os.path.splitext(filename)[0]) for filename in os.listdir(path) if filename.endswith('.pdf')]
+
+# parse blackboard files
+
+def parse_blackboard(file):
+    extension = os.path.splitext(file)[1]
+    if extension == '.xls':
+        with open(file, encoding='utf-16') as f:
+            content = pd.read_csv(f, sep='\t', encoding='utf8')
+    elif extension == '.csv':
+        content = pd.read_csv(file, sep=',', encoding='utf8')
+    else:
+        print('Blackboard parser: file extension not supported')
+        sys.exit(1)
+    return content
+    # parse lines as elements of a list
+    
+
+# get list of names from parsed blackboard file
+
+def blackboard_list(content):
+    row_list = []
+    for index, row in content.iterrows():
+        row_list.append(row["Apellidos"]+" "+row["Nombre"])
+    return row_list
+
+
+# parse sevius file as dictionary {name: email}
+
+def parse_sevius(file):
+    content = pd.read_excel(file, skiprows=range(5))
+    dict_name_email = {}
+    for index, row in content.iterrows():
+        dict_name_email.update({row["Apellidos, Nombre"]: row["Correo electrónico"]})
+    return dict_name_email
+
+
+# merge lists and remove duplicates
+
+def merge_lists(list_of_lists):
+    return list(set([item for sublist in list_of_lists for item in sublist]))
+
+
+# extract person name and grade from filename like 'Pepe Pérez, 3,5.pdf'
+# supported input decimal separators; , . '
+# decimal separator is replaced by .
+
+def split_name_grade(filename):
+    try:
+        name = re.search("[^\\d|,|;|\\'|\\.]*", filename).group(0).replace(" +", " ")
+    except:
+        name = ""
+    try:
+        grade = float(re.search("\\d*[,|\\'|\\.]?\\d+", filename).group(0).replace("'", ".").replace(",", "."))
+    except:
+        grade = ""
+    try:
+        if grade == int(grade):
+            grade = int(grade)
+    except:
+        pass
+    return name, grade
+
+# get the score matrix comparing strings in two lists
+
+def score_matrix(list1, list2):
+    rows_list = []
+    columns_list = []
+    scores_list = []
+    list1 = [flatten_name(item) for item in list1]
+    list2 = [flatten_name(item) for item in list2]
+    for item, count in collections.Counter(list1).items():
+        matches = process.extract(item, list2)
+        for match in matches:
+            rows_list.append(list1.index(item))
+            columns_list.append(list2.index(match[0]))
+            scores_list.append(match[1])
+    rows = np.array(rows_list)
+    columns = np.array(columns_list)
+    scores = np.array(scores_list)
+    return csr_matrix((scores, (rows, columns)), shape=(
+        len(list1), len(list2))).toarray()
+
+
+# given two lists, create a new list whose elements are of the form [element of first list, best match in second list, score]
+# and a dictionary of the form {best match in second list: element of first list}
+
+def best_matches(list1, list2):
+    M = score_matrix(list1, list2)
+    # solve the linear sum assignment problem
+    [list1_positions, list2_positions] = optimize.linear_sum_assignment(
+        M, maximize=True)
+    return [[list1[list1_positions[i]], list2[list2_positions[i]], M[list1_positions[i], list2_positions[i]]]
+            for i in range(len(list1_positions))], {list2[list2_positions[i]]: list1[list1_positions[i]]
+                                                    for i in range(len(list1_positions))}
+
+
+# rename source folder files according to a list of pairs of the form [filename, newname] and copy them to output folder
+
+def rename_files(source_path, output_path, list):
+    for item in list:
+        shutil.copy(os.path.join(
+            source_path, item[0]+'.pdf'), os.path.join(output_path, item[1]+'.pdf'))
+
+
+# print table from list of lists of the form [string1, string2, score] ordered by score (descending)
+
+def sorted_table(list, old_name = 'OLD name', new_name = 'NEW name'):
+    sorted_list = sorted(list, key=lambda x: x[2])
+    print(tabulate(sorted_list, headers=[old_name, new_name, 'SCORE']))

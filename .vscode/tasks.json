@@ -1,0 +1,22 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Install python package with pipx",
+            "type": "shell",
+            "command": "pipx uninstall teaching; pipx install dist/*.whl"
+        },
+        {
+            "label": "Build python package & reinstall",
+            "type": "shell",
+            "command": "rm -rf dist ; python -m pip install build; python -m build && python -m pip install --upgrade --force-reinstall dist/*.whl",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}
