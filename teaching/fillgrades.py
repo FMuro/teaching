@@ -32,16 +32,17 @@ def function():
     source_dict = dict(source_read.itertuples(index=False, name=None))
     source_names = list(source_dict.keys())
 
-    # dictionary of parsed blackboard files
+    # dictionary of parsed blackboard files {file: dataframe}
     blackboard_dict = {}
     for target in targets:
         blackboard_dict.update({target: parse_blackboard(target)})
 
-    # list of names in target files
-    target_names = []
+    # dictionary {name: UVUS} from all target files
+    target_names_dict = {}
     for target in targets:
-        target_names += blackboard_list(blackboard_dict[target])
-    target_names = list(set(target_names))
+        target_names_dict.update(blackboard_list(blackboard_dict[target]))
+    # list of names in target files
+    target_names = list(target_names_dict.keys())
 
     # create best match list and dictionary for source and target names
     # elements of the list are of the form [source name, best blackboard name match, score]
@@ -64,3 +65,12 @@ def function():
     for target in targets:
         file_name, _ = os.path.splitext(target)
         blackboard_dict[target].to_csv(f"{file_name}_filled.csv", index=False, quotechar='"', quoting=csv.QUOTE_ALL, sep=',')
+
+    # script path
+    script_path = os.path.dirname(os.path.realpath(__file__))
+    acta = pd.read_excel(os.path.join(script_path,'acta.xlsx'))
+    for i, name in enumerate(names_dict_keys):
+        acta.iloc[i+2,1] = target_names_dict[name]
+        acta.iloc[i+2,4] = source_dict[names_dict[name]]
+    acta.to_excel('acta_filled.xlsx', index=False)
+    

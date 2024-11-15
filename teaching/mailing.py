@@ -1,5 +1,4 @@
 import os
-import sys
 from teaching.functions import PDF_names, best_matches, sorted_table, parse_sevius, split_name_grade
 import argparse
 import pandas as pd

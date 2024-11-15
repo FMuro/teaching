@@ -39,12 +39,12 @@ def parse_blackboard(file):
     # parse lines as elements of a list
     
 
-# get list of names from parsed blackboard file
+# get dictionary {name: UVUS} from parsed blackboard file
 
 def blackboard_list(content):
-    row_list = []
+    row_list = {}
     for index, row in content.iterrows():
-        row_list.append(row["Apellidos"]+" "+row["Nombre"])
+        row_list.update({row["Apellidos"]+" "+row["Nombre"]: row["Nombre de usuario"]})
     return row_list
 
 

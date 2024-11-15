@@ -28,7 +28,7 @@ def function():
     names = []
     if args.blackboard:
         for item in args.blackboard:
-            names += blackboard_list(parse_blackboard(item))
+            names += list(blackboard_list(parse_blackboard(item)).keys())
     if args.sevius:
         for item in args.sevius:
             names += list(parse_sevius(item).keys())
