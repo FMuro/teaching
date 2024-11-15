@@ -3,6 +3,8 @@ import pandas as pd
 from teaching.functions import best_matches, sorted_table, blackboard_list, parse_blackboard
 import argparse
 import csv
+from datetime import datetime
+import shutil
 
 # CLI arguments
 
@@ -27,7 +29,7 @@ def function():
     # folder with Blackboard files to be filled in
     targets = args.blackboard
 
-    # parse source CSV as dictionary {name: grade} and create list of names
+    # parse source CSV as dictionary {source name: grade} and create list of names
     source_read = pd.read_csv(source, sep=',', encoding='utf8')
     source_dict = dict(source_read.itertuples(index=False, name=None))
     source_names = list(source_dict.keys())
@@ -66,11 +68,17 @@ def function():
         file_name, _ = os.path.splitext(target)
         blackboard_dict[target].to_csv(f"{file_name}_filled.csv", index=False, quotechar='"', quoting=csv.QUOTE_ALL, sep=',')
 
-    # script path
+    # create an Excel file which can be uploaded to PADEL
+    # you must upload it to all the "actas" containing people that have taken the exam
+    # each time, the grades of people which have taken the exam and are included in the "acta" will be updated
+    # there will be error messages for people that have taken the exam but are not in the "acta"
+    # these errors can be dismissed because after uploading the Excel file to all possible "actas" PADEL, all grade updates will be done
     script_path = os.path.dirname(os.path.realpath(__file__))
-    acta = pd.read_excel(os.path.join(script_path,'acta.xlsx'))
-    for i, name in enumerate(names_dict_keys):
-        acta.iloc[i+2,1] = target_names_dict[name]
-        acta.iloc[i+2,4] = source_dict[names_dict[name]]
-    acta.to_excel('acta_filled.xlsx', index=False)
-    
+    acta_file = 'acta_'+datetime.now().strftime("%Y%m%d_%H%M%S")+'.xlsx'
+    shutil.copy(os.path.join(
+            script_path, 'acta.xlsx'), os.path.join(os.getcwd(),acta_file))
+    acta = pd.read_excel(acta_file, header=1)
+    acta['Documento'] = [target_names_dict[name] for name in names_dict_keys]
+    acta['Nota numérica'] = [source_dict[names_dict[name]] for name in names_dict_keys]
+    with pd.ExcelWriter(acta_file, mode='a', if_sheet_exists='overlay') as writer:
+        acta.to_excel(writer,sheet_name='Worksheet',startrow=1, index=False)
