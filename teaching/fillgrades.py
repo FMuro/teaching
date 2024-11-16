@@ -1,6 +1,6 @@
 import os
 import pandas as pd
-from teaching.functions import best_matches, sorted_table, blackboard_list, parse_blackboard
+from teaching.functions import best_matches, sorted_table, blackboard_list, parse_blackboard, split_grades
 import argparse
 import csv
 from datetime import datetime
@@ -13,26 +13,41 @@ parser = argparse.ArgumentParser(
     description='Fill grading spreadsheets from PDF file names',
     epilog='Enjoy your teaching admin!')
 
-parser.add_argument('-s', '--source', help='CSV data file with two colums: name, grade', required=True)
+parser.add_argument('-s', '--source', help='CSV data file with two colums: name, grade')
+parser.add_argument('-f', '--folder', help="folder containing the PDF files called like 'Pepe Pérez, 3,5.pdf'")
 parser.add_argument('-b', '--blackboard', help="blackboard CSV or XLS files to fill in", required=True, nargs='+')
 parser.add_argument('-v', '--verbose', action='store_true',
                     help='print matching list with scores')
 parser.add_argument('-c', '--column', help="column name to fill in", required=True, type=str)
+parser.add_argument('-csv', help="produce two-column CSV file with names and grades", action='store_true')
+parser.add_argument('-l', '--latex', help="produce LaTeX file with names and grades", action='store_true')
 
 args = parser.parse_args()
 
 
 def function():
-    # CSV file with name;grade
-    source = args.source
+
+    # parse additional output files selection
+    tocsv = args.csv
+    tolatex = args.latex
+
+    # check requirement
+    if not args.source and not args.folder:
+        print("argument -s or -f is required")
+        sys.exit(1)
+    
+    # dataframe with names and grades
+    if args.source:
+        source_read = pd.read_csv(source, sep=',', encoding='utf8')
+    if args.folder:
+        source_read = split_grades(args.folder, tocsv, tolatex, args.verbose)
+
+    # parse dataframe as {source name: grade} and create list of names
+    source_dict = dict(source_read.itertuples(index=False, name=None))
+    source_names = list(source_dict.keys())
 
     # folder with Blackboard files to be filled in
     targets = args.blackboard
-
-    # parse source CSV as dictionary {source name: grade} and create list of names
-    source_read = pd.read_csv(source, sep=',', encoding='utf8')
-    source_dict = dict(source_read.itertuples(index=False, name=None))
-    source_names = list(source_dict.keys())
 
     # dictionary of parsed blackboard files {file: dataframe}
     blackboard_dict = {}

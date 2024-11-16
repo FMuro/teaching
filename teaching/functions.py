@@ -10,6 +10,7 @@ from tabulate import tabulate
 import pandas as pd
 from unicodedata import normalize
 import re
+import csv
 
 
 # normalize a string removing/modifying special characters from strings (diacritics, spaces, capitals, etc.)
@@ -131,3 +132,38 @@ def rename_files(source_path, output_path, list):
 def sorted_table(list, old_name = 'OLD name', new_name = 'NEW name'):
     sorted_list = sorted(list, key=lambda x: x[2])
     print(tabulate(sorted_list, headers=[old_name, new_name, 'SCORE']))
+
+def split_grades(path, tocsv = False, tolatex = False, verbose = False):
+
+    # get the list of PDF file names (without extension) in path
+    filenames = PDF_names(path)
+
+    # get list of lists of the form [name, grade] sorted by name
+    names_grades = [[name.upper(), grade] for name, grade in [split_name_grade(filename) for filename in filenames]]
+    names_grades.sort(key=lambda x: x[0])
+
+    # dataframe with names and grades
+    dataframe = pd.DataFrame(names_grades, columns=['Name', 'Grade'])
+    
+    # print grades to terminal if verbose
+    if verbose:
+        print(tabulate(names_grades, headers=['NOMBRE', 'NOTA'], numalign="decimal"))
+
+    # create output files (CSV and LaTeX)
+    root = os.path.basename(os.path.abspath(os.path.normpath(path)))
+    
+    if tocsv:
+        csv_output = root+'_grades_list.csv'
+        dataframe.to_csv(csv_output, index=False, quotechar='"', quoting=csv.QUOTE_ALL, sep=',')
+        print('\nCSV file with names and grades:', csv_output)
+
+    if tolatex:
+        latex_output = open(root+'_grades_list.tex', 'w')
+        latex_output.write('% pdflatex '+root+'_grades_list.tex\n')
+        latex_output.write('\\documentclass{article}\n\\usepackage{booktabs}\n\\begin{document}\n')
+        latex_output.write(tabulate(names_grades, headers=['NOMBRE', 'NOTA'], tablefmt="latex_booktabs", numalign="decimal"))
+        latex_output.write('\n\\end{document}')
+        latex_output.close()
+        print('\nLaTeX file with names and grades:', latex_output.name)
+
+    return dataframe
