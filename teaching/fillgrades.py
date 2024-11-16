@@ -66,7 +66,7 @@ def function():
     # save the filled in files
     for target in targets:
         file_name, _ = os.path.splitext(target)
-        blackboard_dict[target].to_csv(f"{file_name}_filled.csv", index=False, quotechar='"', quoting=csv.QUOTE_ALL, sep=',')
+        blackboard_dict[target].to_csv(f"{file_name}_filled.csv", index=False, quotechar='"', quoting=csv.QUOTE_ALL, sep=',', decimal=',')
 
     # create an Excel file which can be uploaded to PADEL
     # you must upload it to all the "actas" containing people that have taken the exam
