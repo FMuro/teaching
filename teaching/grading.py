@@ -86,7 +86,7 @@ def function():
                 blackboard_dict[target].loc[index, args.column] = source_dict[names_dict[name]]
 
     # save the filled in files
-    print('\nCSV files to upload to Blackboard:\n')
+    print('\nCSV files to upload to Blackboard:')
     for target in targets:
         file_name, _ = os.path.splitext(target)
         blackboard_dict[target].to_csv(file_name+"_filled.csv", index=False, quotechar='"', quoting=csv.QUOTE_ALL, sep=',', decimal=',')
