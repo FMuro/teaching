@@ -44,7 +44,7 @@ def function():
     
     # dataframe with names and grades
     if args.csv:
-        source_read = pd.read_csv(source, sep=',', encoding='utf8')
+        source_read = pd.read_csv(args.csv, sep=',', encoding='utf8')
     if args.folder:
         source_read = split_grades(args.folder, tocsv, tolatex, args.verbose)
 
@@ -86,9 +86,11 @@ def function():
                 blackboard_dict[target].loc[index, args.column] = source_dict[names_dict[name]]
 
     # save the filled in files
+    print('\nCSV files to upload to Blackboard:\n')
     for target in targets:
         file_name, _ = os.path.splitext(target)
-        blackboard_dict[target].to_csv(f"{file_name}_filled.csv", index=False, quotechar='"', quoting=csv.QUOTE_ALL, sep=',', decimal=',')
+        blackboard_dict[target].to_csv(file_name+"_filled.csv", index=False, quotechar='"', quoting=csv.QUOTE_ALL, sep=',', decimal=',')
+        print('file://'+os.path.splitext(os.path.abspath(os.path.normpath(target)))+"_filled.csv")
 
     # create an Excel file which can be uploaded to PADEL
     # you must upload it to all the "actas" containing people that have taken the exam
@@ -104,7 +106,8 @@ def function():
     acta['Nota numérica'] = [source_dict[names_dict[name]] for name in names_dict_keys]
     with pd.ExcelWriter(acta_file, mode='a', if_sheet_exists='overlay') as writer:
         acta.to_excel(writer,sheet_name='Worksheet',startrow=1, index=False)
-    print('\nExcel file to upload to PADEL:', 'file://'+os.path.join(os.getcwd(),acta_file))
+    print('\nExcel file to upload to PADEL:')
+    print('file://'+os.path.join(os.getcwd(),acta_file))
     
     if args.sevius:
         send_by_mail(args.sevius, args.folder, args.verbose)

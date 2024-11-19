@@ -157,7 +157,8 @@ def split_grades(path, tocsv = False, tolatex = False, verbose = False):
     if tocsv:
         csv_output = root+'_grades_list.csv'
         dataframe.to_csv(csv_output, index=False, quotechar='"', quoting=csv.QUOTE_ALL, sep=',')
-        print('\nCSV file with names and grades:', 'file://'+os.path.join(os.getcwd(),csv_output))
+        print('\nCSV file with names and grades:')
+        print('file://'+os.path.join(os.getcwd(),csv_output))
 
     if tolatex:
         latex_output = open(root+'_grades_list.tex', 'w')
@@ -166,7 +167,8 @@ def split_grades(path, tocsv = False, tolatex = False, verbose = False):
         latex_output.write(tabulate(names_grades, headers=['NOMBRE', 'NOTA'], tablefmt="latex_booktabs", numalign="decimal"))
         latex_output.write('\n\\end{document}')
         latex_output.close()
-        print('\nLaTeX file with names and grades:', 'file://'+os.path.join(os.getcwd(),latex_output.name))
+        print('\nLaTeX file with names and grades:')
+        print('file://'+os.path.join(os.getcwd(),latex_output.name))
 
     return dataframe
 
@@ -202,4 +204,5 @@ def send_by_mail(sevius_files, folder, verbose = False):
         print('\nScored list of matched names for MAILING:\n')
         sorted_table(best_matches_list, old_name="FILE name", new_name="MATCHED name")
 
-    print('\nCSV file with names and emails:', 'file://'+os.path.join(os.getcwd(),base_folder+'_mailing.csv'))
+    print('\nCSV file with names and emails:')
+    print('file://'+os.path.join(os.getcwd(),base_folder+'_mailing.csv'))

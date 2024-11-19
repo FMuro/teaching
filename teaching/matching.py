@@ -66,4 +66,5 @@ def function():
 
     # rename source folder files according to dictionary whose keys are the files's names, place them in output folder and create a log file in source folder
     rename_files(path, output_folder, best_matches_list)
-    print('\nFiles renamed in folder:', 'file://'+os.path.join(os.getcwd(),output_folder))
+    print('\nFiles renamed in folder:')
+    print('file://'+os.path.join(os.getcwd(),output_folder))
