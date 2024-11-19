@@ -4,7 +4,7 @@ This `python` package provides some CLI utilities to deal with my teaching admin
 
 - matching
 - splitgrades
-- fillgrades
+- grading
 - mailing
   
 
