@@ -90,7 +90,7 @@ def function():
     for target in targets:
         file_name, _ = os.path.splitext(target)
         blackboard_dict[target].to_csv(file_name+"_filled.csv", index=False, quotechar='"', quoting=csv.QUOTE_ALL, sep=',', decimal=',')
-        print('file://'+os.path.splitext(os.path.abspath(os.path.normpath(target)))+"_filled.csv")
+        print('file://'+os.path.splitext(os.path.abspath(os.path.normpath(target)))[0]+"_filled.csv")
 
     # create an Excel file which can be uploaded to PADEL
     # you must upload it to all the "actas" containing people that have taken the exam
