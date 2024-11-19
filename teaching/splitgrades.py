@@ -8,9 +8,11 @@ parser = argparse.ArgumentParser(
     description='Create grading spreadsheets from PDF file names',
     epilog='Enjoy your teaching admin!')
 
+# folder with the PDF files, whose names are the students' names followed by their grades
 parser.add_argument('-f', '--folder', help="folder containing the PDF files called like 'Pepe Pérez, 3,5.pdf'", required=True)
+# verbosity
 parser.add_argument('-v', '--verbose', action='store_true',
-                    help='print matching list with scores')
+                    help='print list with names and grades')
 
 args = parser.parse_args()
 

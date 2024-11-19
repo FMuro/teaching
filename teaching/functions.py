@@ -11,6 +11,7 @@ import pandas as pd
 from unicodedata import normalize
 import re
 import csv
+import sys
 
 
 # normalize a string removing/modifying special characters from strings (diacritics, spaces, capitals, etc.)
@@ -55,7 +56,7 @@ def parse_sevius(file):
     content = pd.read_excel(file, skiprows=range(5))
     dict_name_email = {}
     for index, row in content.iterrows():
-        dict_name_email.update({row["Apellidos, Nombre"]: row["Correo electrónico"]})
+        dict_name_email.update({row["Apellidos, Nombre"].replace(',',''): row["Correo electrónico"]})
     return dict_name_email
 
 
@@ -147,6 +148,7 @@ def split_grades(path, tocsv = False, tolatex = False, verbose = False):
     
     # print grades to terminal if verbose
     if verbose:
+        print('\nList of names and grades:\n')
         print(tabulate(names_grades, headers=['NOMBRE', 'NOTA'], numalign="decimal"))
 
     # create output files (CSV and LaTeX)
@@ -155,7 +157,7 @@ def split_grades(path, tocsv = False, tolatex = False, verbose = False):
     if tocsv:
         csv_output = root+'_grades_list.csv'
         dataframe.to_csv(csv_output, index=False, quotechar='"', quoting=csv.QUOTE_ALL, sep=',')
-        print('\nCSV file with names and grades:', csv_output)
+        print('\nCSV file with names and grades:', 'file://'+os.path.join(os.getcwd(),csv_output))
 
     if tolatex:
         latex_output = open(root+'_grades_list.tex', 'w')
@@ -164,6 +166,40 @@ def split_grades(path, tocsv = False, tolatex = False, verbose = False):
         latex_output.write(tabulate(names_grades, headers=['NOMBRE', 'NOTA'], tablefmt="latex_booktabs", numalign="decimal"))
         latex_output.write('\n\\end{document}')
         latex_output.close()
-        print('\nLaTeX file with names and grades:', latex_output.name)
+        print('\nLaTeX file with names and grades:', 'file://'+os.path.join(os.getcwd(),latex_output.name))
 
     return dataframe
+
+def send_by_mail(sevius_files, folder, verbose = False):
+
+    # base folder name for outputs
+    base_folder = os.path.basename(os.path.abspath(os.path.normpath(folder)))
+
+    # get dictionary {PDF file name without grade: PDF file name}
+    filenames_dict = {split_name_grade(file)[0]: file for file in PDF_names(folder)}
+    filenames_trimmed = list(filenames_dict.keys())
+
+    # get dictionary {student name: email} from SEVIUS files
+    name_email_dict = {}
+    for file in sevius_files:
+        name_email_dict.update(parse_sevius(file))
+
+    # create the list of student names
+    names = list(name_email_dict.keys())
+
+    # get best matches list, whose elements are lists of the form [file name, full name, score]
+    # and best matches dictionary {student name: matched trimmed PDF file name}
+    best_matches_list, best_matches_dict = best_matches(filenames_trimmed, names)
+
+    # list of names with match
+    names_with_match = best_matches_dict.keys()
+
+    # write CSV file with columns "file", "email"
+    pd.DataFrame({'file':[filenames_dict[best_matches_dict[name]]+'.pdf' for name in names_with_match], 'email': [name_email_dict[name] for name in names_with_match]}).to_csv(base_folder+'_mailing.csv', index=False, quotechar='"', quoting=csv.QUOTE_ALL, sep=',')
+
+    # print log if verbose mode is on ("-v" option) in decreasing failure likelihood order
+    if verbose:
+        print('\nScored list of matched names for MAILING:\n')
+        sorted_table(best_matches_list, old_name="FILE name", new_name="MATCHED name")
+
+    print('\nCSV file with names and emails:', 'file://'+os.path.join(os.getcwd(),base_folder+'_mailing.csv'))

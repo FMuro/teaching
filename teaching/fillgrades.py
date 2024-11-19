@@ -1,6 +1,6 @@
 import os
 import pandas as pd
-from teaching.functions import best_matches, sorted_table, blackboard_list, parse_blackboard, split_grades
+from teaching.functions import best_matches, sorted_table, blackboard_list, parse_blackboard, split_grades, send_by_mail
 import argparse
 import csv
 from datetime import datetime
@@ -13,14 +13,20 @@ parser = argparse.ArgumentParser(
     description='Fill grading spreadsheets from PDF file names',
     epilog='Enjoy your teaching admin!')
 
-parser.add_argument('-s', '--source', help='CSV data file with two colums: name, grade')
-parser.add_argument('-f', '--folder', help="folder containing the PDF files called like 'Pepe Pérez, 3,5.pdf'")
+# what to fill in
 parser.add_argument('-b', '--blackboard', help="blackboard CSV or XLS files to fill in", required=True, nargs='+')
-parser.add_argument('-v', '--verbose', action='store_true',
-                    help='print matching list with scores')
 parser.add_argument('-c', '--column', help="column name to fill in", required=True, type=str)
-parser.add_argument('-csv', help="produce two-column CSV file with names and grades", action='store_true')
+# data source
+source = parser.add_mutually_exclusive_group(required=True)
+source.add_argument('-f', '--folder', help="folder containing the PDF files called like 'Pérez Pepe, 3,5.pdf'")
+source.add_argument('--csv', help='CSV data file with two colums: name, grade')
+# additional output files
+parser.add_argument('--tocsv', help="produce two-column CSV file with names and grades", action='store_true')
 parser.add_argument('-l', '--latex', help="produce LaTeX file with names and grades", action='store_true')
+# mailing
+parser.add_argument('-s', '--sevius', help="SEVIUS files to get the students' emails", nargs='+')
+# verbosity
+parser.add_argument('-v', '--verbose', action='store_true', help='print matching list with scores')
 
 args = parser.parse_args()
 
@@ -28,16 +34,16 @@ args = parser.parse_args()
 def function():
 
     # parse additional output files selection
-    tocsv = args.csv
+    tocsv = args.tocsv
     tolatex = args.latex
 
     # check requirement
-    if not args.source and not args.folder:
-        print("argument -s or -f is required")
+    if args.sevius and args.csv:
+        print("argument -s, --sevius requires -f, --folder")
         sys.exit(1)
     
     # dataframe with names and grades
-    if args.source:
+    if args.csv:
         source_read = pd.read_csv(source, sep=',', encoding='utf8')
     if args.folder:
         source_read = split_grades(args.folder, tocsv, tolatex, args.verbose)
@@ -69,6 +75,7 @@ def function():
 
     # print log if verbose mode is on ("-v" option) in decreasing failure likelihood order
     if args.verbose:
+        print('\nScored list of matched names for GRADING:\n')
         sorted_table(matches_list, old_name="GRADES name", new_name="MATCHED name")
 
     # fill in the column in the target files
@@ -97,3 +104,7 @@ def function():
     acta['Nota numérica'] = [source_dict[names_dict[name]] for name in names_dict_keys]
     with pd.ExcelWriter(acta_file, mode='a', if_sheet_exists='overlay') as writer:
         acta.to_excel(writer,sheet_name='Worksheet',startrow=1, index=False)
+    print('\nExcel file to upload to PADEL:', 'file://'+os.path.join(os.getcwd(),acta_file))
+    
+    if args.sevius:
+        send_by_mail(args.sevius, args.folder, args.verbose)

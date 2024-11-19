@@ -1,6 +1,7 @@
 from teaching.functions import PDF_names, best_matches, rename_files, sorted_table, blackboard_list, parse_blackboard, parse_sevius
 import os
 import argparse
+import sys
 
 # CLI arguments
 
@@ -9,9 +10,13 @@ parser = argparse.ArgumentParser(
     description='Rename PDFs according to student lists from Blackboard or Sevius',
     epilog='Hope this helps!')
 
-parser.add_argument('-b', '--blackboard', help='student lists from blackboard', nargs='+')
-parser.add_argument('-s', '--sevius', help='student lists from sevius', nargs='+')
+# folder with the PDF files, whose names should be more or less the real names
 parser.add_argument('-f', '--folder', help='folder containing the PDF files', required=True)
+# files with real names
+group = parser.add_mutually_exclusive_group(required=True)
+group.add_argument('-b', '--blackboard', help='student lists from blackboard', nargs='+')
+group.add_argument('-s', '--sevius', help='student lists from sevius', nargs='+')
+# verbosity
 parser.add_argument('-v', '--verbose', action='store_true',
                     help='print matching list with scores')
 
@@ -61,3 +66,4 @@ def function():
 
     # rename source folder files according to dictionary whose keys are the files's names, place them in output folder and create a log file in source folder
     rename_files(path, output_folder, best_matches_list)
+    print('\nFiles renamed in folder:', 'file://'+os.path.join(os.getcwd(),output_folder))
