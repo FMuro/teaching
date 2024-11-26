@@ -5,6 +5,7 @@ import argparse
 import csv
 from datetime import datetime
 import shutil
+import sys
 
 # CLI arguments
 
@@ -41,12 +42,15 @@ def function():
     if args.sevius and args.csv:
         print("argument -s, --sevius requires -f, --folder")
         sys.exit(1)
-    
+
     # dataframe with names and grades
     if args.csv:
         source_read = pd.read_csv(args.csv, sep=',', encoding='utf8')
-    if args.folder:
+    elif args.folder:
         source_read = split_grades(args.folder, tocsv, tolatex, args.verbose)
+    else:
+        print("No data source provided")
+        sys.exit(1)
 
     # parse dataframe as {source name: grade} and create list of names
     source_dict = dict(source_read.itertuples(index=False, name=None))
@@ -108,6 +112,6 @@ def function():
         acta.to_excel(writer,sheet_name='Worksheet',startrow=1, index=False)
     print('\nExcel file to upload to PADEL:')
     print('file://'+os.path.join(os.getcwd(),acta_file))
-    
+
     if args.sevius:
         send_by_mail(args.sevius, args.folder, args.verbose)
