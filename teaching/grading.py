@@ -5,6 +5,7 @@ import argparse
 import csv
 from datetime import datetime
 import shutil
+import sys
 
 # CLI arguments
 
