@@ -59,7 +59,7 @@ def parse_sevius(file):
 
     # Read everything first without headers
     if extension == '.csv':
-        content_raw = pd.read_csv(file, sep=',', encoding='utf8')
+        content_raw = pd.read_csv(file, sep=',', encoding='utf8', header=None)
     elif extension == '.xlsx':
         content_raw = pd.read_excel(file, header=None)
 
