@@ -68,9 +68,9 @@ def parse_sevius(file):
 
     # Read again skipping rows before that point and let pandas assign headers
     if extension == '.csv':
-        content_raw = pd.read_csv(file, sep=',', encoding='utf8', skiprows=start_row)
+        content = pd.read_csv(file, sep=',', encoding='utf8', skiprows=start_row)
     elif extension == '.xlsx':
-        content_raw = pd.read_excel(file, skiprows=start_row)
+        content = pd.read_excel(file, skiprows=start_row)
     
     # create dictionary {name: email}
     dict_name_email = {}
