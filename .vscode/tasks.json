@@ -11,7 +11,7 @@
         {
             "label": "Build python package & reinstall",
             "type": "shell",
-            "command": "rm -rf dist ; python -m pip install build; python -m build && python -m pip install --upgrade --force-reinstall dist/*.whl",
+            "command": "source .venv/bin/activate && rm -rf dist ; python -m pip install build; python -m build && python -m pip install --upgrade --force-reinstall dist/*.whl",
             "problemMatcher": [],
             "group": {
                 "kind": "build",
