@@ -53,14 +53,24 @@ def blackboard_list(content):
 # parse sevius file as dictionary {name: email}
 
 def parse_sevius(file):
+
+    # determine file extension
+    extension = os.path.splitext(file)[1]
+
     # Read everything first without headers
-    content_raw = pd.read_excel(file, header=None)
+    if extension == '.csv':
+        content_raw = pd.read_csv(file, sep=',', encoding='utf8')
+    elif extension == '.xlsx':
+        content_raw = pd.read_excel(file, header=None)
 
     # Find the first row where the first column equals 'Documento'
     start_row = content_raw.index[content_raw.iloc[:, 0] == 'Documento'][0]
 
     # Read again skipping rows before that point and let pandas assign headers
-    content = pd.read_excel(file, skiprows=start_row)
+    if extension == '.csv':
+        content_raw = pd.read_csv(file, sep=',', encoding='utf8', skiprows=start_row)
+    elif extension == '.xlsx':
+        content_raw = pd.read_excel(file, skiprows=start_row)
     
     # create dictionary {name: email}
     dict_name_email = {}
