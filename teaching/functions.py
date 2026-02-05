@@ -3,6 +3,7 @@ from scipy import optimize
 from scipy.sparse import csr_matrix
 import numpy as np
 import os
+from pathlib import Path
 import collections
 import shutil
 from unidecode import unidecode
@@ -28,11 +29,11 @@ def PDF_names(path):
 # parse blackboard files
 
 def parse_blackboard(file):
-    extension = os.path.splitext(file)[1]
-    if extension == '.xls':
+    extensions = Path(file).suffixes
+    if '.xls' in extensions:
         with open(file, encoding='utf-16') as f:
             content = pd.read_csv(f, sep='\t', encoding='utf8')
-    elif extension == '.csv':
+    elif '.csv' in extensions:
         content = pd.read_csv(file, sep=',', encoding='utf8')
     else:
         print('Blackboard parser: file extension not supported')
