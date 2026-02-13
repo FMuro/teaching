@@ -3,6 +3,7 @@ from scipy import optimize
 from scipy.sparse import csr_matrix
 import numpy as np
 import os
+from pathlib import Path
 import collections
 import shutil
 from unidecode import unidecode
@@ -28,11 +29,11 @@ def PDF_names(path):
 # parse blackboard files
 
 def parse_blackboard(file):
-    extension = os.path.splitext(file)[1]
-    if extension == '.xls':
+    extensions = Path(file).suffixes
+    if '.xls' in extensions:
         with open(file, encoding='utf-16') as f:
             content = pd.read_csv(f, sep='\t', encoding='utf8')
-    elif extension == '.csv':
+    elif '.csv' in extensions:
         content = pd.read_csv(file, sep=',', encoding='utf8')
     else:
         print('Blackboard parser: file extension not supported')
@@ -53,14 +54,24 @@ def blackboard_list(content):
 # parse sevius file as dictionary {name: email}
 
 def parse_sevius(file):
+
+    # determine file extension
+    extension = os.path.splitext(file)[1]
+
     # Read everything first without headers
-    content_raw = pd.read_excel(file, header=None)
+    if extension == '.csv':
+        content_raw = pd.read_csv(file, sep=',', encoding='utf8', header=None)
+    elif extension == '.xlsx':
+        content_raw = pd.read_excel(file, header=None)
 
     # Find the first row where the first column equals 'Documento'
     start_row = content_raw.index[content_raw.iloc[:, 0] == 'Documento'][0]
 
     # Read again skipping rows before that point and let pandas assign headers
-    content = pd.read_excel(file, skiprows=start_row)
+    if extension == '.csv':
+        content = pd.read_csv(file, sep=',', encoding='utf8', skiprows=start_row)
+    elif extension == '.xlsx':
+        content = pd.read_excel(file, skiprows=start_row)
     
     # create dictionary {name: email}
     dict_name_email = {}
