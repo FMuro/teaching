@@ -5,6 +5,7 @@ This `python` package provides some CLI utilities to deal with my teaching admin
 - [matching](#matching)
 - [grading](#grading)
 - [mailing](#mailing)
+- [acting](#acting)
 - [splitgrades](#splitgrades)
 
 
@@ -110,6 +111,25 @@ options:
 
 Enjoy your teaching admin!
 ```
+
+
+# acting
+
+´´´
+$ acting -h
+usage: acting [-h] -b BLACKBOARD [BLACKBOARD ...] -c COLUMN [-v]
+
+Fill University of Seville's official grading spreadsheets (actas) from Blackboard spreadsheets
+
+options:
+  -h, --help            show this help message and exit
+  -b, --blackboard BLACKBOARD [BLACKBOARD ...]
+                        blackboard CSV or XLS files with the grades
+  -c, --column COLUMN   name of column with the grades
+  -v, --verbose         print matching list with scores
+
+Enjoy your teaching admin!
+´´´
 
 
 # splitgrades
