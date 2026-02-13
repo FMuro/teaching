@@ -14,33 +14,41 @@ This `python` package provides some CLI utilities to deal with my teaching admin
 Run the following command in terminal:
 
 ```
-pip install --upgrade git+https://github.com/FMuro/teaching.git#egg=teaching
+$ pip install --upgrade git+https://github.com/FMuro/teaching.git#egg=teaching
 ```
 
-Use this command to update the package too. 
+or the following two commands:
+
+```
+$ git clone https://github.com/FMuro/teaching.git
+$ pip install --upgrade teaching.git/
+```
+
+Use these commands to update the package too. 
+
 Do you use `pipx`? This is typical if you have `python` installed on macOS through `homebrew`. Then the command to install is:
 
 ```
-pipx install git+https://github.com/FMuro/teaching.git#egg=teaching
+$ pipx install git+https://github.com/FMuro/teaching.git#egg=teaching
 ```
 
 The command to update is:
 
 ```
-pipx upgrade teaching
+$ pipx upgrade teaching
 ```
 
 
 # Remove <!-- omit from toc -->
 
 ```
-pip uninstall teaching
+$ pip uninstall teaching
 ```
 
 If you installed it using `pipx`:
 
 ```
-pipx uninstall teaching
+$ pipx uninstall teaching
 ```
 
 
