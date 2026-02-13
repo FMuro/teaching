@@ -33,9 +33,9 @@ def parse_blackboard(file):
     extensions = Path(file).suffixes
     if '.xls' in extensions:
         with open(file, encoding='utf-16') as f:
-            content = pd.read_csv(f, sep='\t')
+            content = pd.read_csv(f, sep='\t', decimal=",")
     elif '.csv' in extensions:
-        content = pd.read_csv(file, sep=',', encoding='utf8')
+        content = pd.read_csv(file, sep=',', encoding='utf8', decimal=",")
     else:
         print('Blackboard parser: file extension not supported')
         sys.exit(1)
