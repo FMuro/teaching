@@ -1,14 +1,14 @@
-# What does this do?
+# What does this do? <!-- omit from toc -->
 
 This `python` package provides some CLI utilities to deal with my teaching admin:
 
 - [matching](#matching)
-- [splitgrades](#splitgrades)
 - [grading](#grading)
 - [mailing](#mailing)
-  
+- [splitgrades](#splitgrades)
 
-# Install
+
+# Install <!-- omit from toc -->
 
 Run the following command in terminal:
 
@@ -30,7 +30,7 @@ pipx upgrade teaching
 ```
 
 
-# Remove
+# Remove <!-- omit from toc -->
 
 ```
 pip uninstall teaching
@@ -62,24 +62,6 @@ options:
   -v, --verbose         print matching list with scores
 
 Hope this helps!
-```
-
-
-# splitgrades
-
-```
-$ splitgrades  -h
-usage: splitgrades [-h] -f FOLDER [-v]
-
-Create grading spreadsheets from PDF file names
-
-options:
-  -h, --help            show this help message and exit
-  -f, --folder FOLDER   folder containing the PDF files called like 'Pepe
-                        Pérez, 3,5.pdf'
-  -v, --verbose         print list with names and grades
-
-Enjoy your teaching admin!
 ```
 
 
@@ -125,6 +107,24 @@ options:
   -f, --folder FOLDER   folder containing the PDF files called like 'Pérez
                         Pepe, 3,5.pdf'
   -v, --verbose         print matching list with scores
+
+Enjoy your teaching admin!
+```
+
+
+# splitgrades
+
+```
+$ splitgrades  -h
+usage: splitgrades [-h] -f FOLDER [-v]
+
+Create grading spreadsheets from PDF file names
+
+options:
+  -h, --help            show this help message and exit
+  -f, --folder FOLDER   folder containing the PDF files called like 'Pepe
+                        Pérez, 3,5.pdf'
+  -v, --verbose         print list with names and grades
 
 Enjoy your teaching admin!
 ```
