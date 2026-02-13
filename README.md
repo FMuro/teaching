@@ -17,14 +17,22 @@ Run the following command in terminal:
 $ pip install --upgrade git+https://github.com/FMuro/teaching.git#egg=teaching
 ```
 
-or the following two commands:
+Use this command to update the package too. 
+
+You can also install the packaged with the following two commands:
 
 ```
 $ git clone https://github.com/FMuro/teaching.git
 $ pip install --upgrade teaching.git/
 ```
 
-Use these commands to update the package too. 
+Then, in order to update, you must do:
+
+```
+$ cd teaching.git/
+$ git pull
+$ pip install --upgrade .
+```
 
 Do you use `pipx`? This is typical if you have `python` installed on macOS through `homebrew`. Then the command to install is:
 
