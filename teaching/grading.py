@@ -1,10 +1,8 @@
 import os
 import pandas as pd
-from teaching.functions import best_matches, sorted_table, blackboard_list, parse_blackboard, split_grades, send_by_mail
+from teaching.functions import best_matches, fill_in_acta, sorted_table, blackboard_list, parse_blackboard, split_grades, send_by_mail, fill_in_acta
 import argparse
 import csv
-from datetime import datetime
-import shutil
 import sys
 
 # CLI arguments
@@ -96,22 +94,10 @@ def function():
         blackboard_dict[target].to_csv(file_name+"_filled.csv", index=False, quotechar='"', quoting=csv.QUOTE_ALL, sep=',', decimal=',')
         print('file://'+os.path.splitext(os.path.abspath(os.path.normpath(target)))[0]+"_filled.csv")
 
-    # create an Excel file which can be uploaded to PADEL
-    # you must upload it to all the "actas" containing people that have taken the exam
-    # each time, the grades of people which have taken the exam and are included in the "acta" will be updated
-    # there will be error messages for people that have taken the exam but are not in the "acta"
-    # these errors can be dismissed because after uploading the Excel file to all possible "actas" PADEL, all grade updates will be done
-    script_path = os.path.dirname(os.path.realpath(__file__))
-    acta_file = 'acta_'+datetime.now().strftime("%Y%m%d_%H%M%S")+'.xlsx'
-    shutil.copy(os.path.join(
-            script_path, 'acta.xlsx'), os.path.join(os.getcwd(),acta_file))
-    acta = pd.read_excel(acta_file, header=1)
-    acta['Documento'] = [target_names_dict[name] for name in names_dict_keys]
-    acta['Nota numérica'] = [source_dict[names_dict[name]] for name in names_dict_keys]
-    with pd.ExcelWriter(acta_file, mode='a', if_sheet_exists='overlay') as writer:
-        acta.to_excel(writer,sheet_name='Worksheet',startrow=1, index=False)
-    print('\nExcel file to upload to PADEL:')
-    print('file://'+os.path.join(os.getcwd(),acta_file))
+    # fill in acta
+    documento_list = [target_names_dict[name] for name in names_dict_keys]
+    nota_list = [source_dict[names_dict[name]] for name in names_dict_keys]
+    fill_in_acta(documento_list, nota_list)
 
     if args.sevius:
         send_by_mail(args.sevius, args.folder, args.verbose)

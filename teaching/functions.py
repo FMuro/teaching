@@ -13,6 +13,7 @@ from unicodedata import normalize
 import re
 import csv
 import sys
+from datetime import datetime
 
 
 # normalize a string removing/modifying special characters from strings (diacritics, spaces, capitals, etc.)
@@ -226,3 +227,21 @@ def send_by_mail(sevius_files, folder, verbose = False):
 
     print('\nCSV file with names and emails:')
     print('file://'+os.path.join(os.getcwd(),base_folder+'_mailing.csv'))
+
+    # create an Excel file which can be uploaded to PADEL
+    # you must upload it to all the "actas" containing people that have taken the exam
+    # each time, the grades of people which have taken the exam and are included in the "acta" will be updated
+    # there will be error messages for people that have taken the exam but are not in the "acta"
+    # these errors can be dismissed because after uploading the Excel file to all possible "actas" PADEL, all grade updates will be done
+def fill_in_acta(documento_list, nota_list):
+    script_path = os.path.dirname(os.path.realpath(__file__))
+    acta_file = 'acta_'+datetime.now().strftime("%Y%m%d_%H%M%S")+'.xlsx'
+    shutil.copy(os.path.join(
+            script_path, 'acta.xlsx'), os.path.join(os.getcwd(),acta_file))
+    acta = pd.read_excel(acta_file, header=1)
+    acta['Documento'] = documento_list
+    acta['Nota numérica'] = nota_list
+    with pd.ExcelWriter(acta_file, mode='a', if_sheet_exists='overlay') as writer:
+        acta.to_excel(writer,sheet_name='Worksheet',startrow=1, index=False)
+    print('\nExcel file to upload to PADEL:')
+    print('file://'+os.path.join(os.getcwd(),acta_file))
