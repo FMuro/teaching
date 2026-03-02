@@ -2,6 +2,7 @@ from teaching.functions import PDF_names, best_matches, rename_files, sorted_tab
 import os
 import argparse
 import sys
+from unidecode import unidecode
 
 # CLI arguments
 
@@ -19,6 +20,9 @@ group.add_argument('-s', '--sevius', help='student lists from sevius', nargs='+'
 # verbosity
 parser.add_argument('-v', '--verbose', action='store_true',
                     help='print matching list with scores')
+
+parser.add_argument('-d', '--diacritics', action='store_true',
+                    help='avoid diacritics in file names')
 
 args = parser.parse_args()
 
@@ -55,6 +59,11 @@ def function():
     # create best match list for filenames and realnames
     # elements of this list are of the form [filename, best name match, score]
     best_matches_list, _ = best_matches(filenames, names)
+
+    # remove diacritics in target file names if this option was passed
+    if args.diacritics:
+        for names in best_matches_list:
+            names[1] = unidecode(names[1])
 
     # print log if verbose mode is on ("-v" option) in decreasing failure likelihood order
     if args.verbose:
