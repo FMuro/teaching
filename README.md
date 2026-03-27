@@ -19,7 +19,7 @@ $ pip install --upgrade git+https://github.com/FMuro/teaching.git#egg=teaching
 
 Use this command to update the package too. 
 
-You can also install the packaged with the following two commands:
+You can also install the package with the following two commands:
 
 ```
 $ git clone https://github.com/FMuro/teaching.git
@@ -131,7 +131,7 @@ Enjoy your teaching admin!
 
 # acting
 
-´´´
+```
 $ acting -h
 usage: acting [-h] -b BLACKBOARD [BLACKBOARD ...] -c COLUMN [-v]
 
@@ -145,7 +145,7 @@ options:
   -v, --verbose         print matching list with scores
 
 Enjoy your teaching admin!
-´´´
+```
 
 
 # splitgrades
